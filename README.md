@@ -1,3 +1,5 @@
+> i did not write a single line of code, so every bug is cursors' fault.
+
 # Vibe Games
 
 A modern gaming application built with Next.js and Three.js, featuring interactive 3D games with advanced physics and visual effects.
