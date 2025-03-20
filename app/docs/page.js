@@ -186,9 +186,9 @@ export default function DocsPage() {
               <div className="pl-4 pt-2 text-gray-300">
                 <p>
                   Destroy multiple asteroids to increase your score. Once you
-                  reach 1000 points, you&apos;ll unlock the double laser power-up,
-                  allowing your ship to fire four beams at once instead of two,
-                  with a faster firing rate.
+                  reach 1000 points, you&apos;ll unlock the double laser
+                  power-up, allowing your ship to fire four beams at once
+                  instead of two, with a faster firing rate.
                 </p>
               </div>
             </details>
@@ -203,9 +203,9 @@ export default function DocsPage() {
                   <span className="bg-gray-700 px-2 py-1 rounded text-sm">
                     M
                   </span>{" "}
-                  key during gameplay to activate &quot;Matrix Mode&quot;, transforming
-                  the visual style of the entire game to a green wireframe
-                  aesthetic reminiscent of the Matrix film. Press{" "}
+                  key during gameplay to activate &quot;Matrix Mode&quot;,
+                  transforming the visual style of the entire game to a green
+                  wireframe aesthetic reminiscent of the Matrix film. Press{" "}
                   <span className="bg-gray-700 px-2 py-1 rounded text-sm">
                     M
                   </span>{" "}
