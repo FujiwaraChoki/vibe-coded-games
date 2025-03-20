@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Vibe Games
 
-## Getting Started
+A modern gaming application built with Next.js and Three.js, featuring interactive 3D games with advanced physics and visual effects.
 
-First, run the development server:
+## 🎮 Features
+
+- **Multiple Games**:
+
+  - **Quantum Drift**: Navigate a spacecraft through different quantum realms, each with unique physics properties
+  - **Ocean Voyager**: Sail across a dynamic ocean, facing changing weather conditions and collecting treasures
+
+- **Rich 3D Environments**: Detailed 3D worlds powered by Three.js
+- **Realistic Physics**: Accurate movement and environmental effects
+- **Dynamic Weather System**: Weather changes that affect gameplay
+- **Responsive Controls**: Intuitive keyboard controls with smooth movement
+
+## 🚀 Technologies Used
+
+- [Next.js 15.2](https://nextjs.org/) - React framework with app router
+- [React 19](https://react.dev/) - UI library
+- [Three.js](https://threejs.org/) - 3D graphics library
+- [TailwindCSS 4](https://tailwindcss.com/) - Utility-first CSS framework
+- [Turbopack](https://turbo.build/pack) - Incremental bundler
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 20.x or later
+- npm, yarn, pnpm or bun
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/yourusername/vibe-games.git
+cd vibe-games
+
+# Install dependencies
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+# Run the development server
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## Learn More
+## 🎯 Game Controls
 
-To learn more about Next.js, take a look at the following resources:
+### Quantum Drift
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **W/↑**: Move Forward
+- **S/↓**: Move Backward
+- **A/←**: Move Left
+- **D/→**: Move Right
+- **SPACE**: Fire Laser Beams
+- **1-4**: Switch between quantum realms
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Ocean Voyager
 
-## Deploy on Vercel
+- **W/↑**: Accelerate
+- **S/↓**: Brake/Reverse
+- **A/←**: Turn Left
+- **D/→**: Turn Right
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📘 Quantum Realms
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Regular Space**: Standard physics with balanced movement
+- **Low Gravity**: Floaty movement with less drag and higher speed
+- **High Density**: Heavy resistance with higher drag and slower movement
+- **Probability**: Unpredictable movement with quantum randomness
+
+## 🌊 Ocean Features
+
+- Dynamic ocean with realistic wave simulation
+- Weather changes (calm, windy, foggy, stormy)
+- Islands, hazards, treasures, and power-ups
+
+## 🚢 Building for Production
+
+```bash
+# Build the application
+npm run build
+
+# Start the production server
+npm start
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
