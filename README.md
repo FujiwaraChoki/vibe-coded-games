@@ -1,97 +1,106 @@
 > i did not write a single line of code, so every bug is cursors' fault.
 
-# Vibe Games
+# Ocean Game - Multiplayer Edition
 
-A modern gaming application built with Next.js and Three.js, featuring interactive 3D games with advanced physics and visual effects.
+An ocean exploration game with multiplayer support and MongoDB integration.
 
-## 🎮 Features
+## Features
 
-- **Multiple Games**:
+- Real-time multiplayer ocean exploration
+- Treasure hunting and collection with score tracking
+- Dynamic weather system that affects gameplay
+- Fishing mini-game with various fish types
+- Persistent player data and high scores
+- Customizable player names and session support
 
-  - **Quantum Drift**: Navigate a spacecraft through different quantum realms, each with unique physics properties
-  - **Ocean Voyager**: Sail across a dynamic ocean, facing changing weather conditions and collecting treasures
+## Setup
 
-- **Rich 3D Environments**: Detailed 3D worlds powered by Three.js
-- **Realistic Physics**: Accurate movement and environmental effects
-- **Dynamic Weather System**: Weather changes that affect gameplay
-- **Responsive Controls**: Intuitive keyboard controls with smooth movement
+### 1. Install dependencies
 
-## 🚀 Technologies Used
-
-- [Next.js 15.2](https://nextjs.org/) - React framework with app router
-- [React 19](https://react.dev/) - UI library
-- [Three.js](https://threejs.org/) - 3D graphics library
-- [TailwindCSS 4](https://tailwindcss.com/) - Utility-first CSS framework
-- [Turbopack](https://turbo.build/pack) - Incremental bundler
-
-## 🛠️ Getting Started
-
-### Prerequisites
-
-- Node.js 20.x or later
-- npm, yarn, pnpm or bun
-
-### Installation
+For the web app:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/vibe-games.git
-cd vibe-games
-
-# Install dependencies
 npm install
 ```
 
-### Development
+For the Python backend:
 
 ```bash
-# Run the development server
+pip install -r requirements.txt
+```
+
+### 2. Configure MongoDB
+
+Create a `.env.local` file in the root directory with your MongoDB connection string:
+
+```
+MONGODB_URI=mongodb://localhost:27017/oceanGame
+NEXT_PUBLIC_GAME_SERVER=http://localhost:6767
+```
+
+Replace the MongoDB URI with your own connection string if you're using a remote database.
+
+### 3. Start the Python backend
+
+```bash
+python backend.py
+```
+
+The server will start on port 5000 by default. You can change this by setting the `PORT` environment variable.
+
+### 4. Start the web app
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+The app will be available at http://localhost:3000
 
-## 🎯 Game Controls
+## Playing the Game
 
-### Quantum Drift
+1. Choose "Multiplayer" on the start screen
+2. Enter your name and optionally a session ID to play with friends
+3. Explore the ocean, collect treasures, and compete for high scores
+4. Use WASD or arrow keys to move your ship
+5. Press F to fish at fishing spots
+6. View other players' ships and compete for the highest score
 
-- **W/↑**: Move Forward
-- **S/↓**: Move Backward
-- **A/←**: Move Left
-- **D/→**: Move Right
-- **SPACE**: Fire Laser Beams
-- **1-4**: Switch between quantum realms
+## Controls
 
-### Ocean Voyager
+- W/S or Arrow Up/Down: Move forward/backward
+- A/D or Arrow Left/Right: Turn left/right
+- Space: Speed boost
+- F: Fish (when near fishing spots)
+- Escape: Pause/Unpause
 
-- **W/↑**: Accelerate
-- **S/↓**: Brake/Reverse
-- **A/←**: Turn Left
-- **D/→**: Turn Right
+## Development
 
-## 📘 Quantum Realms
+### Project Structure
 
-- **Regular Space**: Standard physics with balanced movement
-- **Low Gravity**: Floaty movement with less drag and higher speed
-- **High Density**: Heavy resistance with higher drag and slower movement
-- **Probability**: Unpredictable movement with quantum randomness
+- `app/` - Next.js web application
+  - `components/game/` - Game components and logic
+  - `lib/` - Utility functions and services
+- `backend.py` - Python WebSocket server for multiplayer
+- `.env.local` - Environment configuration
 
-## 🌊 Ocean Features
+### Technologies Used
 
-- Dynamic ocean with realistic wave simulation
-- Weather changes (calm, windy, foggy, stormy)
-- Islands, hazards, treasures, and power-ups
+- Next.js and React for the frontend
+- Three.js for 3D rendering
+- Socket.io for real-time communication
+- Flask for the Python backend API
+- MongoDB for data persistence
 
-## 🚢 Building for Production
+## Deploy to Production
 
-```bash
-# Build the application
-npm run build
+For production deployment, you'll need:
 
-# Start the production server
-npm start
-```
+1. A MongoDB database (Atlas or self-hosted)
+2. A server to host the Python backend
+3. A platform for the Next.js frontend (Vercel, Netlify, etc.)
 
-## 📄 License
+Update the environment variables to point to your production services.
+
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

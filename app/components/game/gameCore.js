@@ -88,11 +88,15 @@ export function initializeGame({ container, onRealmChange }) {
     if (e.key === "Shift") keys.shift = true;
     if (e.key === " ") keys.space = true;
 
-    // Realm shifting with number keys (1-4)
+    // Realm switching (expanded for new realms)
     if (e.key === "1") shiftRealm("regular");
     if (e.key === "2") shiftRealm("lowGravity");
     if (e.key === "3") shiftRealm("highDensity");
     if (e.key === "4") shiftRealm("probability");
+    if (e.key === "5") shiftRealm("temporalFlux");
+    if (e.key === "6") shiftRealm("quantumEntanglement");
+    if (e.key === "7") shiftRealm("darkMatter");
+    if (e.key === "8") shiftRealm("subatomic");
 
     // Easter egg: Matrix mode
     if (e.key === "m") {
@@ -500,87 +504,62 @@ export function initializeGame({ container, onRealmChange }) {
 
   // Realm shifting logic
   function shiftRealm(realmName) {
-    if (quantumRealms.realms[realmName]) {
-      // Preserve momentum when shifting
-      const { velocity } = spacecraft;
+    if (quantumRealms.setActiveRealm(realmName)) {
+      const realm = quantumRealms.getActiveRealm();
 
-      // Set the new active realm
+      // Update background color
+      scene.background.set(new THREE.Color(realm.backgroundColor));
+
+      // Trigger visual transition effect
+      createRealmTransitionEffect();
+
+      // Store current realm name
       currentRealm = realmName;
-      quantumRealms.setActiveRealm(realmName);
+      gameState.realmChangeTimer = 0;
 
-      // Apply realm transition effects
-      scene.background = new THREE.Color(
-        quantumRealms.realms[realmName].backgroundColor
-      );
-
-      // Create environment for the new realm
-      createEnvironment(scene, realmName);
-
-      // Notify of realm change
-      onRealmChange(realmName);
-
-      // Easter egg: If a player has collected all easter eggs and switches between all realms
-      if (
-        easterEggs.konami &&
-        easterEggs.matrixMode &&
-        easterEggs.doubleLaser
-      ) {
-        // Check if we've visited all realms
-        if (
-          realmName === "probability" &&
-          document.body.getAttribute("data-visited-realms") ===
-            "regular,lowGravity,highDensity"
-        ) {
-          showEasterEggMessage("Ultimate Power Unlocked: Time Dilation!");
-
-          // Apply a unique effect across all realms
-          applyTimeDilationEffect();
-        }
-
-        // Keep track of visited realms
-        const visitedRealms =
-          document.body.getAttribute("data-visited-realms") || "";
-        if (!visitedRealms.includes(realmName)) {
-          const newVisitedRealms = visitedRealms
-            ? `${visitedRealms},${realmName}`
-            : realmName;
-          document.body.setAttribute("data-visited-realms", newVisitedRealms);
-        }
+      // Notify UI of realm change
+      if (onRealmChange) {
+        onRealmChange(realmName);
       }
+
+      return true;
     }
+    return false;
   }
 
-  // Easter egg: Apply time dilation effect
-  function applyTimeDilationEffect() {
-    // Create colorful shockwave around the spacecraft
-    const shockwaveGeometry = new THREE.SphereGeometry(1, 32, 32);
-    const shockwaveMaterial = new THREE.MeshPhongMaterial({
+  function createRealmTransitionEffect() {
+    // Create a ripple effect emanating from the spacecraft
+    const rippleGeometry = new THREE.RingGeometry(0.5, 1, 32);
+    const rippleMaterial = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      emissive: 0xffffff,
       transparent: true,
-      opacity: 0.5,
-      wireframe: true,
+      opacity: 0.8,
+      side: THREE.DoubleSide,
     });
 
-    const shockwave = new THREE.Mesh(shockwaveGeometry, shockwaveMaterial);
-    shockwave.position.copy(spacecraft.mesh.position);
-    scene.add(shockwave);
+    const ripple = new THREE.Mesh(rippleGeometry, rippleMaterial);
+    ripple.position.copy(spacecraft.mesh.position);
+    ripple.rotation.x = Math.PI / 2;
+    scene.add(ripple);
 
-    // Animate the shockwave
-    const expandShockwave = () => {
-      shockwave.scale.x += 0.2;
-      shockwave.scale.y += 0.2;
-      shockwave.scale.z += 0.2;
-      shockwave.material.opacity -= 0.01;
+    // Animate the ripple
+    let scale = 1;
+    const maxScale = 50;
+    const expandRate = 80;
 
-      if (shockwave.material.opacity > 0) {
-        requestAnimationFrame(expandShockwave);
+    function animateRipple() {
+      scale += expandRate * 0.016; // 60fps
+      ripple.scale.set(scale, scale, scale);
+      ripple.material.opacity = 1 - scale / maxScale;
+
+      if (scale < maxScale) {
+        requestAnimationFrame(animateRipple);
       } else {
-        scene.remove(shockwave);
+        scene.remove(ripple);
       }
-    };
+    }
 
-    expandShockwave();
+    animateRipple();
   }
 
   // Rock destruction handler
@@ -764,6 +743,9 @@ export function initializeGame({ container, onRealmChange }) {
       }
     }
 
+    // Update stars based on current realm
+    updateStarfield();
+
     // Render the scene
     renderer.render(scene, camera);
   }
@@ -797,4 +779,165 @@ export function initializeGame({ container, onRealmChange }) {
       });
     },
   };
+}
+
+function applyPhysics(obj, deltaTime, keys) {
+  const physics = quantumRealms.getActivePhysics();
+
+  // Get time multiplier for temporal flux realm
+  const timeMultiplier = physics.getTimeMultiplier
+    ? physics.getTimeMultiplier(gameState.elapsedTime)
+    : 1;
+  const adjustedDeltaTime = deltaTime * timeMultiplier;
+
+  // Process input
+  let accelerationX = 0;
+  let accelerationZ = 0;
+
+  if (keys.forward) accelerationZ -= physics.acceleration;
+  if (keys.backward) accelerationZ += physics.acceleration;
+
+  // Apply quantum entanglement effects if applicable
+  if (keys.left) {
+    let direction = -1;
+    if (physics.getEntanglementEffect) {
+      direction = physics.getEntanglementEffect(
+        direction,
+        gameState.elapsedTime
+      );
+    }
+    accelerationX += physics.acceleration * direction;
+  }
+
+  if (keys.right) {
+    let direction = 1;
+    if (physics.getEntanglementEffect) {
+      direction = physics.getEntanglementEffect(
+        direction,
+        gameState.elapsedTime
+      );
+    }
+    accelerationX += physics.acceleration * direction;
+  }
+
+  // Apply probability field randomness
+  if (physics.randomFactor > 0) {
+    accelerationX += (Math.random() * 2 - 1) * physics.randomFactor;
+    accelerationZ += (Math.random() * 2 - 1) * physics.randomFactor;
+  }
+
+  // Apply acceleration
+  obj.velocity.x += accelerationX * adjustedDeltaTime;
+  obj.velocity.z += accelerationZ * adjustedDeltaTime;
+
+  // Apply drag (air resistance)
+  obj.velocity.x *= Math.pow(physics.drag, adjustedDeltaTime * 60);
+  obj.velocity.z *= Math.pow(physics.drag, adjustedDeltaTime * 60);
+
+  // Apply gravitational wells if applicable
+  if (physics.applyGravitationalWells) {
+    const modifiedVelocity = physics.applyGravitationalWells(
+      obj.mesh.position,
+      { x: obj.velocity.x, z: obj.velocity.z }
+    );
+
+    obj.velocity.x = modifiedVelocity.x;
+    obj.velocity.z = modifiedVelocity.z;
+  }
+
+  // Apply speed limit
+  const currentSpeed = Math.sqrt(
+    obj.velocity.x * obj.velocity.x + obj.velocity.z * obj.velocity.z
+  );
+
+  if (currentSpeed > physics.maxSpeed) {
+    const scale = physics.maxSpeed / currentSpeed;
+    obj.velocity.x *= scale;
+    obj.velocity.z *= scale;
+  }
+
+  // Apply velocity to position
+  obj.mesh.position.x += obj.velocity.x * adjustedDeltaTime;
+  obj.mesh.position.z += obj.velocity.z * adjustedDeltaTime;
+}
+
+// Update starfield to reflect current realm
+function updateStarfield() {
+  if (!starfield) return;
+
+  // Get the active realm for star customization
+  const physics = quantumRealms.getActivePhysics();
+
+  // Update star colors based on the current realm
+  starfield.children.forEach((star) => {
+    if (star.material) {
+      // Set color based on realm
+      if (physics.particleColor) {
+        star.material.color.setHex(physics.particleColor);
+      }
+
+      // Special effect for subatomic realm: pulsating stars
+      if (physics.particleEffects) {
+        const pulseScale =
+          0.7 + Math.sin(gameState.elapsedTime * 3 + star.position.x) * 0.3;
+        star.scale.set(pulseScale, pulseScale, pulseScale);
+      } else {
+        star.scale.set(1, 1, 1);
+      }
+    }
+  });
+
+  // Adjust star density if needed
+  if (
+    physics.starDensity &&
+    starfield.userData.density !== physics.starDensity &&
+    gameState.realmChangeTimer > 2
+  ) {
+    // Only adjust stars after realm has stabilized
+    adjustStarDensity(physics.starDensity);
+    starfield.userData.density = physics.starDensity;
+  }
+}
+
+function adjustStarDensity(targetDensity) {
+  if (!starfield) return;
+
+  const currentCount = starfield.children.length;
+
+  if (targetDensity > currentCount) {
+    // Add more stars
+    const starsToAdd = targetDensity - currentCount;
+    for (let i = 0; i < starsToAdd; i++) {
+      addStar();
+    }
+  } else if (targetDensity < currentCount) {
+    // Remove stars
+    const starsToRemove = currentCount - targetDensity;
+    for (let i = 0; i < starsToRemove; i++) {
+      if (starfield.children.length > 0) {
+        starfield.remove(starfield.children[0]);
+      }
+    }
+  }
+}
+
+function addStar() {
+  if (!starfield) return;
+
+  const geometry = new THREE.SphereGeometry(0.25, 4, 4);
+  const material = new THREE.MeshBasicMaterial({
+    color: quantumRealms.getActivePhysics().particleColor || 0xffffff,
+  });
+
+  const star = new THREE.Mesh(geometry, material);
+
+  // Random position in a large cube around the origin
+  const spread = 100;
+  star.position.set(
+    (Math.random() - 0.5) * spread,
+    (Math.random() - 0.5) * spread,
+    (Math.random() - 0.5) * spread
+  );
+
+  starfield.add(star);
 }

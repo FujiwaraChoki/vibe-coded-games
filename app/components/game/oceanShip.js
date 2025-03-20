@@ -191,18 +191,104 @@ export function createShip(scene) {
   shipGroup.add(shield);
 
   // Create wake effect behind the ship
-  const wakeGeometry = new THREE.PlaneGeometry(1.5, 3);
+  const wakeGeometry = new THREE.PlaneGeometry(3, 8); // Wider and longer wake
   const wakeMaterial = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.6, // Higher base opacity
     side: THREE.DoubleSide,
   });
   const wake = new THREE.Mesh(wakeGeometry, wakeMaterial);
   wake.rotation.x = -Math.PI / 2;
   wake.position.y = 0.05;
-  wake.position.z = -3;
+  wake.position.z = -6; // Position it further back
   shipGroup.add(wake);
+
+  // Add a particle trail system
+  const trailParticles = new THREE.Group();
+  shipGroup.add(trailParticles);
+
+  // Variables to control trail generation
+  let lastTrailTime = 0;
+  const trailInterval = 200; // milliseconds between trail particles
+  const maxTrailParticles = 15;
+  const trailParticlesList = [];
+
+  // Function to create trail particles
+  function createTrailParticle() {
+    // Calculate position behind the ship
+    const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      shipGroup.quaternion
+    );
+    const position = shipGroup.position
+      .clone()
+      .sub(direction.multiplyScalar(4));
+    position.y = 0.1; // Just above water level
+
+    // Create particle
+    const particle = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.5 + Math.random(), 1.5 + Math.random()),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      })
+    );
+
+    // Set position and rotation
+    particle.position.copy(position);
+    particle.rotation.x = -Math.PI / 2; // Flat on water
+
+    // Add to scene
+    scene.add(particle);
+
+    // Store creation time
+    particle.userData.creationTime = Date.now();
+
+    // Add to our list
+    trailParticlesList.push(particle);
+
+    // Remove oldest particle if we exceed max
+    if (trailParticlesList.length > maxTrailParticles) {
+      const oldestParticle = trailParticlesList.shift();
+      scene.remove(oldestParticle);
+      oldestParticle.material.dispose();
+      oldestParticle.geometry.dispose();
+    }
+  }
+
+  // Function to update trail particles
+  function updateTrailParticles() {
+    const currentTime = Date.now();
+
+    // Create new trail particles based on speed and interval
+    if (physics.speed > 5 && currentTime - lastTrailTime > trailInterval) {
+      createTrailParticle();
+      lastTrailTime = currentTime;
+    }
+
+    // Update existing particles
+    for (let i = trailParticlesList.length - 1; i >= 0; i--) {
+      const particle = trailParticlesList[i];
+      const age = (currentTime - particle.userData.creationTime) / 1000; // age in seconds
+
+      // Fade out based on age
+      particle.material.opacity = Math.max(0, 0.7 - age * 0.3);
+
+      // Expand slightly as it ages
+      const scale = 1 + age * 0.3;
+      particle.scale.set(scale, scale, 1);
+
+      // Remove if fully faded
+      if (particle.material.opacity <= 0) {
+        scene.remove(particle);
+        particle.material.dispose();
+        particle.geometry.dispose();
+        trailParticlesList.splice(i, 1);
+      }
+    }
+  }
 
   // Functions to animate the ship parts
   function animateFlag(time) {
@@ -269,12 +355,15 @@ export function createShip(scene) {
 
   function animateWake(speed) {
     // Adjust wake opacity based on speed
-    const opacity = Math.min(0.6, (speed / physics.maxSpeed) * 0.6);
+    const opacity = Math.min(0.8, (speed / physics.maxSpeed) * 0.8);
     wakeMaterial.opacity = opacity;
 
     // Adjust wake size based on speed
-    const scale = 1 + speed / physics.maxSpeed;
-    wake.scale.set(scale, 1 + scale * 0.5, 1);
+    const scale = 1 + (speed / physics.maxSpeed) * 1.5;
+    wake.scale.set(scale, 1 + scale, 1);
+
+    // Update trail particles
+    updateTrailParticles();
   }
 
   function animateRocking(time, weather, speed) {
@@ -665,6 +754,12 @@ export function createShip(scene) {
     deactivateShield,
     getSpeed: () => physics.speed,
     getPosition: () => shipGroup.position.clone(),
+    animateWake: (speed) => animateWake(speed),
+    setFlagColor: (color) => {
+      if (flagMaterial) {
+        flagMaterial.color.set(color);
+      }
+    },
     updatePhysicsParams: ({ maxSpeed, acceleration }) => {
       if (maxSpeed !== undefined) {
         physics.maxSpeed = maxSpeed;

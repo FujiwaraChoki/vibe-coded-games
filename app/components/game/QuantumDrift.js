@@ -54,6 +54,42 @@ export default function QuantumDrift() {
     setShowInstructions(!showInstructions);
   };
 
+  // Map realm names to their descriptions (to be displayed in the UI)
+  const realmDescriptions = {
+    regular: "Standard physics in regular space",
+    lowGravity: "Lower inertia, less drag, higher top speed",
+    highDensity: "Heavy resistance, higher drag, slower movement",
+    probability: "Unpredictable movements with quantum randomness",
+    temporalFlux: "Time fluctuates unpredictably, affecting movement speed",
+    quantumEntanglement: "Movement can be mirrored in peculiar ways",
+    darkMatter: "Invisible gravity wells affect your trajectory",
+    subatomic: "Fast and chaotic like particles in an atom",
+  };
+
+  // Function to get more specific information about the current realm
+  const getRealmInfo = () => {
+    switch (currentRealm) {
+      case "regular":
+        return "Balanced and predictable physics - a good baseline.";
+      case "lowGravity":
+        return "You can reach higher speeds, but have less control when changing direction.";
+      case "highDensity":
+        return "Slower but more precise movement. Great for navigating tight spaces.";
+      case "probability":
+        return "Random fluctuations make movement unpredictable. Expect the unexpected!";
+      case "temporalFlux":
+        return "Time itself flows irregularly here, causing your ship to accelerate and decelerate in waves.";
+      case "quantumEntanglement":
+        return "Controls occasionally reverse as quantum entanglement affects your movement.";
+      case "darkMatter":
+        return "Invisible gravitational pulls will affect your trajectory. Can you feel them?";
+      case "subatomic":
+        return "Incredibly fast but chaotic. Maximum speed but minimum predictability.";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="relative w-full h-full">
       {!gameStarted ? (
@@ -163,80 +199,77 @@ export default function QuantumDrift() {
                       <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
                         4
                       </span>
-                      Probability
+                      Probability Field
+                    </li>
+                    <li className="flex items-center">
+                      <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
+                        5
+                      </span>
+                      Temporal Flux
+                    </li>
+                    <li className="flex items-center">
+                      <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
+                        6
+                      </span>
+                      Quantum Entanglement
+                    </li>
+                    <li className="flex items-center">
+                      <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
+                        7
+                      </span>
+                      Dark Matter
+                    </li>
+                    <li className="flex items-center">
+                      <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
+                        8
+                      </span>
+                      Subatomic
+                    </li>
+                    <li className="flex items-center">
+                      <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-sm">
+                        R
+                      </span>
+                      Random Realm
                     </li>
                   </ul>
                 </div>
               </div>
-
-              <h3 className="text-lg font-semibold mt-6 mb-2 text-purple-300">
-                Quantum Realms Properties
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-blue-900 bg-opacity-30 p-3 rounded">
-                  <h4 className="font-bold">Regular Space</h4>
-                  <p className="text-sm">
-                    Standard physics with balanced movement and inertia.
-                  </p>
-                </div>
-                <div className="bg-cyan-900 bg-opacity-30 p-3 rounded">
-                  <h4 className="font-bold">Low Gravity</h4>
-                  <p className="text-sm">
-                    Floaty movement with less drag and higher top speed.
-                  </p>
-                </div>
-                <div className="bg-purple-900 bg-opacity-30 p-3 rounded">
-                  <h4 className="font-bold">High Density</h4>
-                  <p className="text-sm">
-                    Heavy resistance with higher drag and slower movement.
-                  </p>
-                </div>
-                <div className="bg-green-900 bg-opacity-30 p-3 rounded">
-                  <h4 className="font-bold">Probability</h4>
-                  <p className="text-sm">
-                    Unpredictable movement with quantum randomness affecting
-                    controls.
-                  </p>
-                </div>
-              </div>
-
-              <p className="mt-6 text-gray-300">
-                <span className="font-bold">Game Goal:</span> Explore the
-                different quantum realms and experience how physics changes in
-                each dimension. The game preserves momentum when shifting
-                between realms, so use this to your advantage!
-              </p>
-
-              <button
-                onClick={toggleInstructions}
-                className="mt-6 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded"
-              >
-                Close Instructions
-              </button>
             </div>
           )}
         </div>
-      ) : null}
+      ) : (
+        <>
+          <div
+            ref={containerRef}
+            className="absolute inset-0 bg-black z-0"
+          ></div>
 
-      {gameStarted && (
-        <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded z-20">
-          <p>
-            Current Realm: <span className="font-bold">{currentRealm}</span>
-          </p>
-          <p className="text-xs mt-1 text-gray-300">
-            Press 1-4 to switch realms
-          </p>
-        </div>
+          {/* HUD */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+            <div className="bg-black bg-opacity-50 text-white p-3 rounded-lg">
+              <div className="font-bold">
+                Current Realm:{" "}
+                <span className="text-purple-300">{currentRealm}</span>
+              </div>
+              <div className="text-sm mt-1 opacity-80">
+                {realmDescriptions[currentRealm]}
+              </div>
+              <div className="text-xs mt-1 text-purple-200">
+                {getRealmInfo()}
+              </div>
+            </div>
+          </div>
+
+          {/* Easter egg messages */}
+          {easterEggMessage && (
+            <div className="absolute top-4 left-0 right-0 flex justify-center">
+              <div className="bg-purple-900 bg-opacity-80 text-white py-2 px-6 rounded-lg text-lg animate-bounce">
+                {easterEggMessage}
+              </div>
+            </div>
+          )}
+        </>
       )}
-
-      {/* Easter Egg Notification */}
-      {easterEggMessage && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-purple-900 bg-opacity-80 text-white px-6 py-3 rounded-full z-30 animation-fade-in-out shadow-lg border border-purple-400">
-          <p className="font-bold text-yellow-300">⭐ {easterEggMessage} ⭐</p>
-        </div>
-      )}
-
-      <div ref={containerRef} className="w-full h-full" />
     </div>
   );
 }

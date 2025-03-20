@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { initializeOceanGame } from "./oceanGameCore";
+import gameClient from "../../lib/gameClient";
 
 export default function OceanVoyager() {
   const containerRef = useRef(null);
@@ -12,16 +13,57 @@ export default function OceanVoyager() {
   const [currentScore, setCurrentScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const [playerName, setPlayerName] = useState("");
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
   const gameInstanceRef = useRef(null);
 
   useEffect(() => {
+    // Load player name from local storage
+    const savedName = localStorage.getItem("ocean_player_name");
+    if (savedName) {
+      setPlayerName(savedName);
+    } else {
+      setPlayerName(`Sailor${Math.floor(Math.random() * 1000)}`);
+    }
+
+    // Load best score from local storage
+    const savedBestScore = localStorage.getItem("oceanVoyagerBestScore");
+    if (savedBestScore) {
+      setBestScore(parseInt(savedBestScore, 10));
+    }
+  }, []);
+
+  useEffect(() => {
     if (!containerRef.current || !gameStarted) return;
+
+    let cleanupMultiplayer = () => {};
+
+    // Connect to multiplayer server if multiplayer mode is enabled
+    if (isMultiplayer) {
+      gameClient
+        .connect(playerName)
+        .then(() => {
+          console.log("Connected to multiplayer server");
+        })
+        .catch((error) => {
+          console.error("Failed to connect to multiplayer server:", error);
+        });
+
+      cleanupMultiplayer = () => {
+        gameClient.disconnect();
+      };
+    }
 
     // Initialize ocean game
     const { cleanup, gameState } = initializeOceanGame({
       container: containerRef.current,
       onWeatherChange: (weather) => setWeatherCondition(weather),
-      onScoreUpdate: (score) => setCurrentScore(score),
+      onScoreUpdate: (score) => {
+        setCurrentScore(score);
+        if (isMultiplayer) {
+          gameClient.updateStatus(score, gameState.shipDamage);
+        }
+      },
       onGameOver: (finalScore) => {
         setGameOver(true);
         setCurrentScore(finalScore);
@@ -30,13 +72,32 @@ export default function OceanVoyager() {
           localStorage.setItem("oceanVoyagerBestScore", finalScore);
         }
       },
+      // Add multiplayer options
+      isMultiplayer: isMultiplayer,
+      onPositionUpdate: (position, rotation, velocity) => {
+        if (isMultiplayer) {
+          gameClient.updatePosition(position, rotation, velocity);
+        }
+      },
+      onTreasureCollected: (treasureId, position) => {
+        if (isMultiplayer) {
+          gameClient.collectTreasure(treasureId, position);
+        }
+      },
+      getOtherPlayers: () => {
+        if (isMultiplayer) {
+          const state = gameClient.getGameState();
+          return Object.values(state.players);
+        }
+        return [];
+      },
+      getCurrentPlayerId: () => {
+        if (isMultiplayer) {
+          return gameClient.getPlayerId();
+        }
+        return null;
+      },
     });
-
-    // Load best score from local storage
-    const savedBestScore = localStorage.getItem("oceanVoyagerBestScore");
-    if (savedBestScore) {
-      setBestScore(parseInt(savedBestScore, 10));
-    }
 
     // Store game instance for future reference
     gameInstanceRef.current = { cleanup, gameState };
@@ -46,10 +107,12 @@ export default function OceanVoyager() {
       if (gameInstanceRef.current && gameInstanceRef.current.cleanup) {
         gameInstanceRef.current.cleanup();
       }
+      cleanupMultiplayer();
     };
-  }, [gameStarted, bestScore]);
+  }, [gameStarted, bestScore, isMultiplayer, playerName]);
 
-  const startGame = () => {
+  const startGame = (multiplayer = false) => {
+    setIsMultiplayer(multiplayer);
     setGameStarted(true);
     setGameOver(false);
     setCurrentScore(0);
@@ -57,6 +120,11 @@ export default function OceanVoyager() {
 
   const toggleInstructions = () => {
     setShowInstructions(!showInstructions);
+  };
+
+  const handleNameChange = (e) => {
+    setPlayerName(e.target.value);
+    localStorage.setItem("ocean_player_name", e.target.value);
   };
 
   return (
@@ -74,18 +142,43 @@ export default function OceanVoyager() {
           )}
 
           {!gameOver && (
-            <p className="text-xl mb-12 max-w-md text-center">
-              Navigate your ship through treacherous waters, collect treasures,
-              and survive the changing weather conditions.
-            </p>
+            <div className="text-center mb-12 max-w-md">
+              <p className="text-xl mb-4">
+                Navigate your ship through treacherous waters, collect
+                treasures, and survive the changing weather conditions.
+              </p>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="playerName"
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                >
+                  Your Sailor Name:
+                </label>
+                <input
+                  type="text"
+                  id="playerName"
+                  value={playerName}
+                  onChange={handleNameChange}
+                  className="w-full px-4 py-2 bg-blue-800 text-white rounded border border-blue-600 focus:outline-none focus:ring focus:border-blue-400"
+                  maxLength={20}
+                />
+              </div>
+            </div>
           )}
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button
-              onClick={startGame}
+              onClick={() => startGame(false)}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-colors"
             >
-              {gameOver ? "Play Again" : "Start Game"}
+              {gameOver ? "Play Again (Solo)" : "Play Solo"}
+            </button>
+            <button
+              onClick={() => startGame(true)}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-colors"
+            >
+              {gameOver ? "Play Again (Multiplayer)" : "Play Multiplayer"}
             </button>
             <button
               onClick={toggleInstructions}
