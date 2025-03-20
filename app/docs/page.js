@@ -127,7 +127,7 @@ export default function DocsPage() {
             </h3>
             <p className="mb-4">
               Each realm has unique physics properties that affect your
-              spacecraft's movement and handling.
+              spacecraft&apos;s movement and handling.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-900 bg-opacity-30 p-3 rounded">
@@ -186,7 +186,7 @@ export default function DocsPage() {
               <div className="pl-4 pt-2 text-gray-300">
                 <p>
                   Destroy multiple asteroids to increase your score. Once you
-                  reach 1000 points, you'll unlock the double laser power-up,
+                  reach 1000 points, you&apos;ll unlock the double laser power-up,
                   allowing your ship to fire four beams at once instead of two,
                   with a faster firing rate.
                 </p>
@@ -203,7 +203,7 @@ export default function DocsPage() {
                   <span className="bg-gray-700 px-2 py-1 rounded text-sm">
                     M
                   </span>{" "}
-                  key during gameplay to activate "Matrix Mode", transforming
+                  key during gameplay to activate &quot;Matrix Mode&quot;, transforming
                   the visual style of the entire game to a green wireframe
                   aesthetic reminiscent of the Matrix film. Press{" "}
                   <span className="bg-gray-700 px-2 py-1 rounded text-sm">
@@ -251,7 +251,7 @@ export default function DocsPage() {
                 </ol>
                 <p className="mt-2">
                   Once all conditions are met, a spectacular visual effect will
-                  occur and you'll gain access to a special power that
+                  occur and you&apos;ll gain access to a special power that
                   manipulates the fabric of space-time itself.
                 </p>
               </div>
